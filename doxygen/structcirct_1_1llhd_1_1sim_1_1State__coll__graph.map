@@ -1,0 +1,4 @@
+<map id="circt::llhd::sim::State" name="circt::llhd::sim::State">
+<area shape="rect" id="node3" href="$classcirct_1_1llhd_1_1sim_1_1UpdateQueue.html" title="This is equivalent to and std::priorityQueue&lt;Slot&gt; ordered using the greater operator, which adds an insertion method to add changes to a slot. " alt="" coords="316,71,485,112"/>
+<area shape="rect" id="node8" href="$structcirct_1_1llhd_1_1sim_1_1Time.html" title="The simulator&#39;s internal representation of time. " alt="" coords="323,187,478,214"/>
+</map>

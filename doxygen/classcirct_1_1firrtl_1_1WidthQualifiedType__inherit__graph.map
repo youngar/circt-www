@@ -1,0 +1,8 @@
+<map id="circt::firrtl::WidthQualifiedType&lt; ConcreteType, ParentType &gt;" name="circt::firrtl::WidthQualifiedType&lt; ConcreteType, ParentType &gt;">
+<area shape="rect" id="node3" href="$classcirct_1_1firrtl_1_1WidthQualifiedType.html" title="circt::firrtl::WidthQualified\lType\&lt; UIntType, IntType \&gt;" alt="" coords="770,5,965,47"/>
+<area shape="rect" id="node5" href="$classcirct_1_1firrtl_1_1WidthQualifiedType.html" title="circt::firrtl::WidthQualified\lType\&lt; SIntType, IntType \&gt;" alt="" coords="771,71,963,112"/>
+<area shape="rect" id="node7" href="$classcirct_1_1firrtl_1_1WidthQualifiedType.html" title="circt::firrtl::WidthQualified\lType\&lt; AnalogType, FIRRTLType \&gt;" alt="" coords="749,136,985,177"/>
+<area shape="rect" id="node4" href="$classcirct_1_1firrtl_1_1UIntType.html" title="An unsigned integer type, whose width may not be known. " alt="" coords="1043,13,1194,39"/>
+<area shape="rect" id="node6" href="$classcirct_1_1firrtl_1_1SIntType.html" title="A signed integer type, whose width may not be known. " alt="" coords="1045,78,1193,105"/>
+<area shape="rect" id="node8" href="$classcirct_1_1firrtl_1_1AnalogType.html" title="circt::firrtl::AnalogType" alt="" coords="1035,143,1203,170"/>
+</map>

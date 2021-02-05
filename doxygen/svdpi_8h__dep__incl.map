@@ -1,0 +1,5 @@
+<map id="include/external/dpi/svdpi.h" name="include/external/dpi/svdpi.h">
+<area shape="rect" id="node2" href="$dpi_8h.html" title="include/circt/Dialect\l/ESI/cosim/dpi.h" alt="" coords="63,95,214,136"/>
+<area shape="rect" id="node4" href="$DummySvDpi_8cpp.html" title="lib/Dialect/ESI/cosim\l/MtiPliStub/DummySvDpi.cpp" alt="" coords="238,95,450,136"/>
+<area shape="rect" id="node3" href="$DpiEntryPoints_8cpp.html" title="lib/Dialect/ESI/cosim\l/cosim_dpi_server/DpiEntryPoints.cpp" alt="" coords="5,184,272,225"/>
+</map>

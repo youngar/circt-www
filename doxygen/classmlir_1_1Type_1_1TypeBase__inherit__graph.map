@@ -1,0 +1,4 @@
+<map id="TypeBase" name="TypeBase">
+<area shape="rect" id="node2" href="$classcirct_1_1llhd_1_1PtrType.html" title="circt::llhd::PtrType\l\&lt; PtrType, Type, detail\l::PtrTypeStorage \&gt;" alt="" coords="147,5,315,61"/>
+<area shape="rect" id="node3" href="$classcirct_1_1llhd_1_1SigType.html" title="circt::llhd::SigType\l\&lt; SigType, mlir::Type,\l detail::SigTypeStorage \&gt;" alt="" coords="137,85,324,141"/>
+</map>

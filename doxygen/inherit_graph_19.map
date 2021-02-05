@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$structcirct_1_1firrtl_1_1detail_1_1BundleTypeStorage.html" title="circt::firrtl::detail\l::BundleTypeStorage" alt="" coords="156,5,311,47"/>
+<area shape="rect" id="node3" href="$structcirct_1_1firrtl_1_1detail_1_1FlipTypeStorage.html" title="circt::firrtl::detail\l::FlipTypeStorage" alt="" coords="167,71,300,112"/>
+<area shape="rect" id="node4" href="$structcirct_1_1firrtl_1_1detail_1_1VectorTypeStorage.html" title="circt::firrtl::detail\l::VectorTypeStorage" alt="" coords="158,136,309,177"/>
+<area shape="rect" id="node5" href="$structcirct_1_1firrtl_1_1detail_1_1WidthTypeStorage.html" title="circt::firrtl::detail\l::WidthTypeStorage" alt="" coords="159,201,307,243"/>
+<area shape="rect" id="node6" href="$structcirct_1_1llhd_1_1detail_1_1PtrTypeStorage.html" title="circt::llhd::detail\l::PtrTypeStorage" alt="" coords="169,267,297,308"/>
+<area shape="rect" id="node7" href="$structcirct_1_1llhd_1_1detail_1_1SigTypeStorage.html" title="Storage struct implementation for LLHD&#39;s sig type. " alt="" coords="168,332,299,373"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="include/circt/Dialect/Handshake/HandshakeOps.h" name="include/circt/Dialect/Handshake/HandshakeOps.h">
+<area shape="rect" id="node2" href="$Visitor_8h.html" title="include/circt/Dialect\l/Handshake/Visitor.h" alt="" coords="5,95,161,136"/>
+<area shape="rect" id="node3" href="$HandshakeToFIRRTL_8cpp.html" title="lib/Conversion/Handshake\lToFIRRTL/HandshakeToFIRRTL.cpp" alt="" coords="21,184,261,225"/>
+<area shape="rect" id="node4" href="$InitAllDialects_8h.html" title="include/circt/InitAllDialects.h" alt="" coords="237,102,445,129"/>
+<area shape="rect" id="node5" href="$StandardToHandshake_8cpp.html" title="lib/Conversion/StandardTo\lHandshake/StandardToHandshake.cpp" alt="" coords="469,95,740,136"/>
+<area shape="rect" id="node6" href="$HandshakeOps_8cpp.html" title="lib/Dialect/Handshake\l/HandshakeOps.cpp" alt="" coords="763,95,929,136"/>
+</map>

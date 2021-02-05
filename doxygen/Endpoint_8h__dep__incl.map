@@ -1,0 +1,6 @@
+<map id="include/circt/Dialect/ESI/cosim/Endpoint.h" name="include/circt/Dialect/ESI/cosim/Endpoint.h">
+<area shape="rect" id="node2" href="$Server_8h.html" title="include/circt/Dialect\l/ESI/cosim/Server.h" alt="" coords="195,95,346,136"/>
+<area shape="rect" id="node5" href="$Endpoint_8cpp.html" title="lib/Dialect/ESI/cosim\l/cosim_dpi_server/Endpoint.cpp" alt="" coords="370,95,598,136"/>
+<area shape="rect" id="node3" href="$DpiEntryPoints_8cpp.html" title="lib/Dialect/ESI/cosim\l/cosim_dpi_server/DpiEntryPoints.cpp" alt="" coords="5,184,272,225"/>
+<area shape="rect" id="node4" href="$Server_8cpp.html" title="lib/Dialect/ESI/cosim\l/cosim_dpi_server/Server.cpp" alt="" coords="297,184,509,225"/>
+</map>

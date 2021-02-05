@@ -1,0 +1,136 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>FIRRTL Dialect Rationale - CIRCT</title><meta name=description content="Circuit IR Compilers and Tools"><meta name=generator content="Hugo 0.64.1"><link href=https://circt.llvm.org/index.xml rel=alternate type=application/rss+xml><link rel=canonical href=https://circt.llvm.org/docs/RationaleFIRRTL/><link rel=stylesheet href=https://circt.llvm.org/css/theme.css><script src=https://use.fontawesome.com/releases/v5.0.6/js/all.js></script><link rel=stylesheet href=https://circt.llvm.org/css/chroma.min.css><script src=https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js></script><script src=https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js></script><script src=https://circt.llvm.org/js/bundle.js></script><script type=text/javascript src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type=text/x-mathjax-config>
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$', '$'] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+    }
+  });
+</script><style>:root{}</style></head><body><div class=container><header><h1><div><img src=https://circt.llvm.org//circt-logo.svg width=40px align=absmiddle>
+CIRCT</div></h1><p class=description>Circuit IR Compilers and Tools</p></header><div class=global-menu><nav><ul><li class=parent><a href>Community<i class="fas fa-angle-right"></i></a><ul class=sub-menu><li class=child><a href=https://llvm.discourse.group/c/Projects-that-want-to-become-official-LLVM-Projects/circt/40>Forums</a></li><li class=child><a href=https://discord.gg/xS7Z362>Chat</a></li></ul></li><li class=parent><a href=https://github.com/llvm/circt/tree/main/>Source<i class="fas fa-angle-right"></i></a><ul class=sub-menu><li class=child><a href=/doxygen/>Doxygen</a></li><li class=child><a href=https://github.com/llvm/circt/tree/main/>GitHub</a></li></ul></li></ul></nav></div><div class=content-container><main><h1>FIRRTL Dialect Rationale</h1><p>This document describes various design points of the FIRRTL dialect, why it is
+the way it is, and current status and progress. This follows in the spirit of
+other
+<a href=https://mlir.llvm.org/docs/Rationale/>MLIR Rationale docs</a>
+.</p><h2 id=introduction>Introduction&nbsp;<a class=headline-hash href=#introduction>¶</a></h2><p><a href=https://github.com/chipsalliance/firrtl>The FIRRTL project</a>
+is an existing
+open source compiler infrastructure used by the Chisel framework to lower &ldquo;.fir&rdquo;
+files to Verilog. It provides a number of useful compiler passes and
+infrastructure that allows the development of domain specific passes. The
+FIRRTL project includes a
+<a href=https://github.com/chipsalliance/firrtl/blob/master/spec/spec.pdf>well documented IR
+specification</a>
+that explains the semantics of its IR, an
+<a href=https://github.com/chipsalliance/firrtl/blob/master/src/main/antlr4/FIRRTL.g4>Antlr
+grammar</a>
+includes some extensions beyond it, and a compiler implemented in Scala which we
+refer to as the <em>Scala FIRRTL Compiler</em> (SFC).</p><p>The FIRRTL dialect in CIRCT is designed to follow the FIRRTL IR very closely,
+but does diverge for a variety of reasons. Here we capture some of those
+reasons and why. They generally boil down to simplifying compiler
+implementation and take advantages of the properties of MLIR&rsquo;s SSA form.
+This document generally assumes that you&rsquo;ve read and have a basic grasp of the
+IR spec, and it can be occasionally helpful to refer to the grammar.</p><h2 id=status>Status&nbsp;<a class=headline-hash href=#status>¶</a></h2><p>The FIRRTL dialect and FIR parser is a generally complete implementation of the
+FIRRTL specification and is actively maintained, tracking new enhancements. The
+FIRRTL dialect supports some undocumented features and the &ldquo;CHIRRTL&rdquo; flavor of
+FIRRTL IR that is produced from Chisel.</p><p>There are some exceptions:</p><ol><li>We don&rsquo;t support the <code>'raw string'</code> syntax for strings.</li><li>We don&rsquo;t support the <code>Fixed</code> types for fixed point numbers, and some
+primitives associated with them.</li><li>We don&rsquo;t support <code>Interval</code> types</li></ol><p>Some of these may be research efforts that didn&rsquo;t gain broad adoption, in which
+case we don&rsquo;t want to support them. However, if there is a good reason and a
+community that would benefit from adding support for these, we can do so.</p><h2 id=type-system>Type system&nbsp;<a class=headline-hash href=#type-system>¶</a></h2><h3 id=not-using-standard-types>Not using standard types&nbsp;<a class=headline-hash href=#not-using-standard-types>¶</a></h3><p>At one point we tried to use the integer types in the standard dialect, like
+<code>si42</code> instead of <code>!firrtl.sint&lt;42></code>, but we backed away from this. While it
+originally seemed appealing to use those types, FIRRTL
+operations generally need to work with &ldquo;unknown width&rdquo; integer types (i.e.
+<code>!firrtl.sint</code>).</p><p>Having the known width and unknown width types implemented with two different
+C++ classes was awkward, led to casting bugs, and prevented having a
+<code>FIRRTLType</code> class that unified all the FIRRTL dialect types.</p><h3 id=canonicalized-flip-types>Canonicalized Flip Types&nbsp;<a class=headline-hash href=#canonicalized-flip-types>¶</a></h3><p>One significant difference between the CIRCT and Scala implementation of FIRRTL
+is that the CIRCT implementation of the FIRRTL type system always canonicalizes
+flip types, according to the following rules:</p><ol><li><code>flip(flip(x))</code> == <code>x</code>.</li><li><code>flip(analog(x))</code> == <code>analog(x)</code> since analog types are implicitly
+bidirectional.</li><li><code>flip(bundle(a,b,c,d))</code> == <code>bundle(flip(a), flip(b), flip(c), flip(d))</code> when
+the bundle has non-passive type or contains an analog type. This forces the
+flip into the subelements, where it recursively merges with the non-passive
+subelements and analogs.</li><li><code>flip(vector(a, n))</code> == <code>vector(flip(a), n)</code> when the vector has non-passive
+type or analogs. This forces the flip into the element type, generally
+canceling it out.</li><li><code>bundle(flip(a), flip(b), flip(c), flip(d))</code> == <code>flip(bundle(a, b, c, d)</code>.
+Due to the other rules, the operand to a flip must be a passive type, so the
+entire bundle will be passive, and rule #3 won&rsquo;t be recursively reinvoked.</li></ol><p>The result of this is that FIRRTL types are guaranteed to have a canonical
+representation, and can therefore be tested for pointer equality. The
+canonicalization of analog types means that both input and output ports of
+analog type have the same representation.</p><p>As a further consequence of this, there are a few things to be aware of:</p><ol><li>the <code>FlipType::get(x)</code> method may not return a flip type!</li><li>the notion of &ldquo;flow&rdquo; in the FIRRTL dialect is different from the notion
+described in the FIRRTL spec.</li><li>canonicalization may make types equivalent that the SFC views as different</li></ol><p>As an example of (3), consider the following module:</p><pre><code>module Foo:
+  output a: { flip a: UInt&lt;1&gt; }
+  output b: { a: UInt&lt;1&gt; }
+  b &lt;= a
+</code></pre><p>The connection <code>b &lt;= a</code> <em>is illegal</em> in the SFC due to a type mismatch. However,
+type canonicalization in CIRCT converts the above module to the following
+module:</p><pre><code>module Foo:
+  input a: { a: UInt&lt;1&gt; }
+  output b: { a: UInt&lt;1&gt; }
+  b &lt;= a
+</code></pre><p>Here, the connection <code>b &lt;= a</code> <em>is legal</em> in the SFC. Consequently, type
+canonicalization may result in us accepting more circuits than the SFC.</p><p>Conversely, the SFC views the following two modules as exactly the same (but
+with different names):</p><pre><code>module Foo:
+  input a: { a: UInt&lt;1&gt; }
+  output b: { a: UInt&lt;1&gt; }
+  b &lt;= a
+module Bar:
+  output a: { flip a: UInt&lt;1&gt; }
+  input b: { flip a: UInt&lt;1&gt; }
+  a &lt;= b
+</code></pre><p><strong>Note</strong>: the left-hand-side and right-hand-side of <code>b &lt;= a</code> must change to <code>a &lt;= b</code> or the SFC will reject the circuit. CIRCT type canonicalization does not
+extend to reversing connection directions and this requires relaxing what it
+means about left-hand-side and right-hand-side connections. CIRCT consequently
+accepts all permutations of <code>a &lt;= b</code> and types which canonicalize to the same
+representation.</p><h2 id=operations>Operations&nbsp;<a class=headline-hash href=#operations>¶</a></h2><h3 id=multiple-result-firrtlinstance-operation>Multiple result <code>firrtl.instance</code> operation&nbsp;<a class=headline-hash href=#multiple-result-firrtlinstance-operation>¶</a></h3><p>The FIRRTL spec describes instances as returning a bundle type, where each
+element of the bundle corresponds to one of the ports of the module being
+instanced. This makes sense in the Scala FIRRTL implementation, given that it
+does not support multiple ports.</p><p>The MLIR FIRRTL dialect takes a different approach, having each element of the
+bundle result turn into its own distinct result on the <code>firrtl.instance</code>
+operation. This is made possible by MLIR&rsquo;s robust support for multiple value
+operands, and makes the IR much easier to analyze and work with.</p><h3 id=module-bodies-require-def-before-use-dominance-instead-of-allowing-graphs>Module bodies require def-before-use dominance instead of allowing graphs&nbsp;<a class=headline-hash href=#module-bodies-require-def-before-use-dominance-instead-of-allowing-graphs>¶</a></h3><p>MLIR allows regions with arbitrary graphs in their bodies, and this is used by
+the RTL dialect to allow direct expression of cyclic graphs etc. While this
+makes sense for hardware in general, the FIRRTL dialect is intended to be a
+pragmatic infrastructure focused on lowering of Chisel code to the RTL dialect,
+it isn&rsquo;t intended to be a &ldquo;generally useful IR for hardware&rdquo;.</p><p>We recommend that non-Chisel frontends target the RTL dialect, or a higher level
+dialect of their own creation that lowers to RTL as appropriate.</p><h3 id=input-and-output-module-ports><code>input</code> and <code>output</code> Module Ports&nbsp;<a class=headline-hash href=#input-and-output-module-ports>¶</a></h3><p>The FIRRTL specification describes two kinds of ports: <code>input</code> and <code>output</code>.
+In the <code>firrtl.module</code> declaration we don&rsquo;t track this distinction, instead we
+just represent <code>output</code> ports as having a flipped type compared to its
+specification.</p><p><strong>Rationale:</strong>: This simplifies the IR and provides a more canonical
+representation of the same concept. This also composes with flip type
+canonicalization nicely.</p><p>The FIRRTL specification uses the same type for module ports and instance ports.
+Consequently, the FIRRTL specification relies on &ldquo;flow&rdquo; to set the root
+directionality of a module port vs. an instance port. Computation of &ldquo;flow&rdquo;
+requires tracking the &ldquo;kind&rdquo; of a reference. For modules and instances this
+differentiation happens via &ldquo;port kind&rdquo; and &ldquo;instance kind&rdquo;.</p><p>E.g., in the following module, when inside <code>module Foo</code>, the SFC views the types
+of <code>a</code> and <code>bar.a</code> as the same. The SFC then computed the &ldquo;kind&rdquo; of each
+reference to infer that <code>bar.a</code> is &ldquo;sink flow&rdquo; (something l-value like) and <code>a</code>
+is &ldquo;source flow&rdquo; (something r-value like).</p><pre><code>module Bar:
+  input a: UInt&lt;1&gt;
+module Foo:
+  input a: UInt&lt;1&gt;
+  inst bar of Bar
+</code></pre><p>We diverge from this in CIRCT and represent all information in the type. I.e.,
+the type of <code>bar.a</code> inside module <code>Foo</code> is flipped:</p><div class=highlight><pre class=chroma><code class=language-mlir data-lang=mlir>firrtl<span class=p>.</span>circuit <span class=s>&#34;Foo&#34;</span> <span class=p>{</span>
+  firrtl<span class=p>.</span>module <span class=nf>@Bar</span><span class=p>(</span><span class=nv>%a</span><span class=p>:</span> <span class=p>!</span>firrtl<span class=p>.</span>uint<span class=p>&lt;</span><span class=m>1</span><span class=p>&gt;</span><span class=p>)</span> <span class=p>{</span>
+  <span class=p>}</span>
+  firrtl<span class=p>.</span>module <span class=nf>@Foo</span><span class=p>(</span><span class=nv>%a</span><span class=p>:</span> <span class=p>!</span>firrtl<span class=p>.</span>uint<span class=p>&lt;</span><span class=m>1</span><span class=p>&gt;</span><span class=p>)</span> <span class=p>{</span>
+    <span class=nv>%bar</span> <span class=p>=</span> firrtl<span class=p>.</span>instance <span class=nf>@Bar</span> <span class=p>{</span><span class=nl>name =</span> <span class=s>&#34;bar&#34;</span><span class=p>}</span> <span class=p>:</span> <span class=p>!</span>firrtl<span class=p>.</span>flip<span class=p>&lt;</span>bundle<span class=p>&lt;</span>a<span class=p>:</span> uint<span class=p>&lt;</span><span class=m>1</span><span class=p>&gt;</span><span class=p>&gt;</span><span class=p>&gt;</span>
+  <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></div><p><strong>Note</strong>: The SFC provides a similar public utility,
+<a href=https://www.chisel-lang.org/api/firrtl/latest/firrtl/Utils$.html#module_type%28m:firrtl.ir.DefModule%29:firrtl.ir.BundleType><code>firrtl.Utils.module_type</code></a>
+,
+that returns a bundle representing a <code>firrtl.module</code>. However, this uses the
+inverse convention where <code>input</code> is flipped and <code>output</code> is unflipped.</p><h3 id=firrtlmem><code>firrtl.mem</code>&nbsp;<a class=headline-hash href=#firrtlmem>¶</a></h3><p>Unlike the SFC, the FIRRTL dialect represents each memory port as a distinct
+result value of the <code>firrtl.mem</code> operation. Also, the <code>firrtl.mem</code> node does
+not allow zero port memories for simplicity. Zero port memories are dropped
+by the .fir file parser.</p><h3 id=more-things-are-represented-as-primitives>More things are represented as primitives&nbsp;<a class=headline-hash href=#more-things-are-represented-as-primitives>¶</a></h3><p>We describe the <code>mux</code> and <code>validif</code> expressions as &ldquo;primitives&rdquo;, whereas the IR
+spec and grammar implement them as special kinds of expressions.</p><p>We do this to simplify the implementation: These expression
+have the same structure as primitives, and modeling them as such allows reuse
+of the parsing logic instead of duplication of grammar rules.</p><h3 id=invalid-invalidate-operation-is-an-expression><code>invalid</code> Invalidate Operation is an expression&nbsp;<a class=headline-hash href=#invalid-invalidate-operation-is-an-expression>¶</a></h3><p>The FIRRTL spec describes an <code>x is invalid</code> statement that logically computes
+an invalid value and connects it to <code>x</code> according to flow semantics. This
+behavior makes analysis and transformation a bit more complicated, because there
+are now two things that perform connections: <code>firrtl.connect</code> and the
+<code>x is invalid</code> operation.</p><p>To make things easier to reason about, we split the <code>x is invalid</code> operation
+into two different ops: an <code>firrtl.invalidvalue</code> op that takes no operands
+and returns an invalid value, and a standard <code>firrtl.connect</code> operation that
+connects the invalid value to the destination (or a <code>firrtl.attach</code> for analog
+values). This has the same expressive power as the standard FIRRTL
+representation but is easier to work with.</p><div class=edit-meta><br></div><nav class=pagination><a class="nav nav-prev" href=/docs/Charter/ title="CIRCT Charter"><i class="fas fa-arrow-left" aria-hidden=true></i>Prev - CIRCT Charter</a>
+<a class="nav nav-next" href=/docs/Passes/ title=Passes>Next - Passes <i class="fas fa-arrow-right" aria-hidden=true></i></a></nav><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://themes.gohugo.io/hugo-theme-techdoc/>TechDoc</a>. Designed by <a href=https://github.com/thingsym/hugo-theme-techdoc>Thingsym</a>.</p></footer></main><div class=sidebar><nav class=slide-menu><ul><li><a href=https://circt.llvm.org/>Home</a></li><li><a href=/talks/>Talks and Related Publications</a></li><li><a href=/getting_started/>Getting Started</a></li><li class="parent has-sub-menu"><a href=/docs/>Code Documentation<span class="mark opened">-</span></a><ul class=sub-menu><li class=has-sub-menu><a href=/docs/CommandGuide/>CommandGuide<span class="mark closed">+</span></a><ul class=sub-menu><li><a href=/docs/CommandGuide/handshake-runner/>handshake-runner</a></li></ul></li><li class=has-sub-menu><a href=/docs/Dialects/>Dialects<span class="mark closed">+</span></a><ul class=sub-menu><li><a href=/docs/Dialects/ESI/>'esi' Dialect</a></li><li><a href=/docs/Dialects/FIRRTL/>'firrtl' Dialect</a></li><li><a href=/docs/Dialects/Handshake/>'handshake' Dialect</a></li><li><a href=/docs/Dialects/LLHD/>'llhd' Dialect</a></li><li><a href=/docs/Dialects/RTL/>'rtl' Dialect</a></li><li><a href=/docs/Dialects/StaticLogic/>'staticlogic' Dialect</a></li><li><a href=/docs/Dialects/SV/>'sv' Dialect</a></li></ul></li><li class=has-sub-menu><a href=/docs/ESI/>ESI<span class="mark closed">+</span></a><ul class=sub-menu><li><a href=/docs/ESI/cosim/>ESI cosimulation model</a></li></ul></li><li><a href=/docs/SVPasses/></a></li><li><a href=/docs/Charter/>CIRCT Charter</a></li><li class=active><a href=/docs/RationaleFIRRTL/>FIRRTL Dialect Rationale</a></li><li><a href=/docs/Passes/>Passes</a></li><li><a href=/docs/RationaleRTL-SV/>RTL and SV Dialect Rationale</a></li></ul></li></ul></nav><div class=sidebar-footer></div></div></div><a href=# id=backtothetop-fixed class=backtothetop data-backtothetop-duration=600 data-backtothetop-easing=easeOutQuart data-backtothetop-fixed-fadein=1000 data-backtothetop-fixed-fadeout=1000 data-backtothetop-fixed-bottom=10 data-backtothetop-fixed-right=20><span class="fa-layers fa-fw"><i class="fas fa-circle"></i><i class="fas fa-arrow-circle-up"></i></span></a></div></body></html>

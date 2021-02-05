@@ -1,0 +1,17 @@
+<map id="include/circt/Dialect/FIRRTL/FIRRTLTypes.h" name="include/circt/Dialect/FIRRTL/FIRRTLTypes.h">
+<area shape="rect" id="node2" href="$FIRRTLOps_8h.html" title="include/circt/Dialect\l/FIRRTL/FIRRTLOps.h" alt="" coords="951,95,1105,136"/>
+<area shape="rect" id="node6" href="$FIRRTLOps_8cpp.html" title="lib/Dialect/FIRRTL\l/FIRRTLOps.cpp" alt="" coords="1451,273,1586,315"/>
+<area shape="rect" id="node7" href="$LowerTypes_8cpp.html" title="lib/Dialect/FIRRTL\l/Transforms/LowerTypes.cpp" alt="" coords="5,273,211,315"/>
+<area shape="rect" id="node9" href="$HandshakeToFIRRTL_8cpp.html" title="lib/Conversion/Handshake\lToFIRRTL/HandshakeToFIRRTL.cpp" alt="" coords="1367,184,1607,225"/>
+<area shape="rect" id="node12" href="$FIRRTLTypes_8cpp.html" title="lib/Dialect/FIRRTL\l/FIRRTLTypes.cpp" alt="" coords="1631,184,1766,225"/>
+<area shape="rect" id="node3" href="$FIRRTLVisitors_8h.html" title="include/circt/Dialect\l/FIRRTL/FIRRTLVisitors.h" alt="" coords="1065,184,1241,225"/>
+<area shape="rect" id="node4" href="$FIRRTLToLLHD_8cpp.html" title="lib/Conversion/FIRRTLToLLHD\l/FIRRTLToLLHD.cpp" alt="" coords="768,273,976,315"/>
+<area shape="rect" id="node5" href="$LowerToRTL_8cpp.html" title="lib/Conversion/FIRRTLToRTL\l/LowerToRTL.cpp" alt="" coords="1229,273,1427,315"/>
+<area shape="rect" id="node10" href="$FIRRTLDialect_8cpp.html" title="lib/Dialect/FIRRTL\l/FIRRTLDialect.cpp" alt="" coords="506,184,649,225"/>
+<area shape="rect" id="node11" href="$FIRRTLFolds_8cpp.html" title="lib/Dialect/FIRRTL\l/FIRRTLFolds.cpp" alt="" coords="673,184,807,225"/>
+<area shape="rect" id="node13" href="$FIRParser_8cpp.html" title="lib/Dialect/FIRRTL\l/Import/FIRParser.cpp" alt="" coords="831,184,990,225"/>
+<area shape="rect" id="node14" href="$FIRRTL_2Transforms_2PassDetails_8h.html" title="lib/Dialect/FIRRTL\l/Transforms/PassDetails.h" alt="" coords="83,184,272,225"/>
+<area shape="rect" id="node15" href="$SVPassDetail_8h.html" title="lib/Dialect/SV/Transforms\l/SVPassDetail.h" alt="" coords="297,184,482,225"/>
+<area shape="rect" id="node8" href="$ExportVerilogFIRRTL_8cpp.html" title="lib/Translation/ExportVerilog\l/ExportVerilogFIRRTL.cpp" alt="" coords="1001,273,1205,315"/>
+<area shape="rect" id="node16" href="$AlwaysFusion_8cpp.html" title="lib/Dialect/SV/Transforms\l/AlwaysFusion.cpp" alt="" coords="297,273,482,315"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="OpConversionPattern" name="OpConversionPattern">
+<area shape="rect" id="node2" href="$structConvertOutput.html" title="This works on each output op, creating ops to drive the appropriate results. " alt="" coords="238,5,447,32"/>
+<area shape="rect" id="node3" href="$structConvertRTLModule.html" title="This works on each RTL module, creates corresponding entities, moves the bodies of the modules into t..." alt="" coords="212,56,473,83"/>
+<area shape="rect" id="node4" href="$structFuncOpLowering.html" title="FuncOpLowering\&lt; mlir\l::FuncOp \&gt;" alt="" coords="258,107,427,149"/>
+<area shape="rect" id="node5" href="$structHandshakeFuncOpLowering.html" title="Process of lowering: " alt="" coords="242,173,443,214"/>
+</map>
